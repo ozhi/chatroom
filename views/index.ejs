@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chatroom</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src='/javascripts/chatSocket.js'></script>
+  </head>
+
+  <body>
+
+    <h1> Welcome to Chatroom </h1>
+
+    <a href='/destroySession'>Change nickname</a>
+    |
+    <a href='/rooms'>Rooms</a>
+
+    <br><br><br>
+
+    <div id='publicRoom'>
+        <h3 style='display:block;'>Public room</h3>
+        (<div id='onlineUsers'> </div>)
+      
+        <div id='chatWrap'>
+            <table id='chat'>
+            </table>
+        </div>
+        
+        <form id='submitMessage'>
+            <input id="m" autocomplete="off" placeholder='Type message here'/>
+        </form>
+    </div>
+
+    
+    <ul style='margin-top:50px;'>
+      TO DO:
+      <li>make the room list live and use different namespaces</li>
+      <li>Still have <a href='https://github.com/mkdynamic/omniauth-facebook/issues/61'>issue</a> with accessing fb users' emails</li>
+      <li>Finish reading <a href='http://backlinko.com/google-ranking-factors'>SEO tips</a> (around 162?)</li>
+    </ul>
+
+  </body>
+</html>

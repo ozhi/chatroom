@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Rooms</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src='/javascripts/roomsSocket.js'></script>
+  </head>
+  <body>
+
+      <form id='newRoomForm' action='/rooms' method='post'>
+          <input type='text'     name='newRoomNameField'       placeholder='Name'>                         <br>
+          <input type='password' name='newRoomPasswordField'   placeholder='Password'>                     <br>
+          <input type='number'   name='newRoomMaxMembersField' placeholder='Max members' min='1' max='30'> <br>
+          <input type='submit' value='Create new room'>
+      </form>
+
+      <script> //for submiting the form
+          $(document).ready(function() {
+              $('#newRoomForm').on('submit', function(event) {
+                  var roomName       = $("[name='newRoomNameField']").val();
+                  var roomMaxMembers = $("[name='newRoomMaxMembersField']").val();
+
+                  if( !roomName || !roomMaxMembers || !isValidRoomName(roomName) ) {
+                      event.preventDefault();
+                      alert("You havent filled all needed fields correctly.");
+                  }
+              });
+          });
+
+          function isValidRoomName(s) {
+              return ( s.length <= 20 && (/^[a-z][a-z0-9 ]*$/gi).test(s) );
+          }
+      </script>
+      
+      <br><br><br>
+      <button id='newRoomBtn'>    Mock new room creation </button>
+      <button id='deleteRoomBtn'> Mock room deletion     </button>
+      <br><br><br>
+
+      <table id='roomsList'>
+          <thead>
+              <tr>
+                  <th>Name</th>
+                  <th>Password</th>
+                  <th>Max members</th> 
+              </tr>
+          </thead>
+          <tbody>
+          </tbody>
+      </table>
+
+  </body>
+</html>

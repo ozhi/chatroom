@@ -1,0 +1,38 @@
+body {
+    padding: 50px;
+    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+    color: #00B7FF;
+}
+
+#publicRoom {
+    border: 1px solid black;
+}
+
+#publicRoom input {
+    width: 100%;
+}
+
+#onlineUsers {
+    display: inline-block;
+    margin-bottom: 20px;
+}
+
+#chatWrap {
+    height: 200px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+
+
+
+
+
+
+
+#roomsList tr:nth-child(even) {
+    background: #eee;
+}
