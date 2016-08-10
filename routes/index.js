@@ -5,7 +5,7 @@ var colors = ['red', 'green', 'blue', 'brown', 'orange', 'gray' ]; //currently n
 var onlineUsers = {};
 
 module.exports = function(app, passport, io) {
-    
+
     app.get('/', function(req, res) {
         if(req.session.nickname)
             res.render('index.ejs');
@@ -52,7 +52,7 @@ module.exports = function(app, passport, io) {
         var nickname = socket.client.request.session.nickname;
         var color    = socket.client.request.session.color;
 
-        console.log('Someone has conneted to the / namespace');
+        console.log(nickname + ' has conneted to the / namespace');
 
         socket.join('_public');
 

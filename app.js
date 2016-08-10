@@ -31,7 +31,7 @@ sio.use(function(socket, next) {
 app.use(sessionMiddleware);
 
 
-/*
+/* //commented out days ago
 io.use(passportSocketIo.authorize({
     key: 'connect.sid',
     secret: 'secret',
