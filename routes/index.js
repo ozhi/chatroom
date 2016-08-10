@@ -29,6 +29,7 @@ module.exports = function(app, passport, io) {
             password   : req.body.newRoomPasswordField,
             maxMembers : req.body.newRoomMaxMembersField
         });
+        //so what should we do?
 
         newRoom.save(function(err) {
             if(err)
