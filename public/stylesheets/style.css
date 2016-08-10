@@ -32,6 +32,10 @@ a {
 
 
 
+#roomsList {
+    border: 1px solid black;
+    margin-top: 30px;
+}
 
 #roomsList tr:nth-child(even) {
     background: #eee;
