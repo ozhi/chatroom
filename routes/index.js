@@ -23,50 +23,80 @@ module.exports = function(app, passport, io) {
         res.render('rooms.ejs');
     });
     
-    app.post('/rooms', ensureHasNickname, function(req, res) { //the problem that if you reload 'the page uses info you entered'
-        var newRoom = new Room({
-            name       : req.body.newRoomNameField,
-            password   : req.body.newRoomPasswordField,
-            maxMembers : req.body.newRoomMaxMembersField
-        });
-        //so what should we do?
-
-        newRoom.save(function(err) {
+    app.post('/rooms', ensureHasNickname, function(req, res) { //the problem that if you reload 'the page uses info you entered'        
+        Room.find({name : req.body.newRoomNameField}, function(err, result) {
             if(err)
-                console.log(err);
+                return HandleError(err);
             
-            Room.find({}, function(err, roomsList) {
-                if(err)
-                    return handleError(err);
-                                
-                io.of('/rooms').emit('roomsList change', roomsList);
+            if(result.length) {
+                res.redirect('/rooms'); //add explanation that a room with that name already exists
+                return;
+            }
+
+            //if not, add such a room to db 
+            var newRoom = new Room({
+                name       : req.body.newRoomNameField,
+                password   : req.body.newRoomPasswordField,
+                maxMembers : req.body.newRoomMaxMembersField
             });
-            
-            res.redirect('/rooms/' + req.body.newRoomNameField);
+
+            console.log(req.body.newRoomMaxMembersField + "   " + parseInt(req.body.newRoomMaxMembersField));
+           
+            newRoom.save(function(err) {
+                if(err)
+                    console.log(err);
+                
+                Room.find({}, function(err, roomsList) {
+                    if(err)
+                        return handleError(err);
+                                    
+                    io.of('/rooms').emit('roomsList change', roomsList);
+                });
+                
+                res.redirect('/rooms/' + req.body.newRoomNameField);
+             });
         });
+    });
+
+    app.get('/rooms/:roomName', ensureHasNickname, function(req, res) { //check for password
+        var roomName = req.params.roomName;
+        Room.findOne({name : roomName}, function(err, room) {
+            if(err)
+                return handleError(err);
+            
+            if(!room) {
+                res.redirect('/rooms');
+                return;
+            }
+
+            res.render('room.ejs', {
+                room : room
+            });
+
+            //io.emit('room');
+        });
+
     });
 
     app.get('/destroySession',    destroySession);
     
-    io.sockets.on('connection', function(socket) {
+    io.sockets.on('connection', function(socket) { //global namespace
         var nickname = socket.client.request.session.nickname;
         var color    = socket.client.request.session.color;
 
         console.log(nickname + ' has conneted to the / namespace');
 
-        socket.join('_public');
-
         onlineUsers[nickname] = color;
-        io.to('_public').emit('onlineUsers change', onlineUsers);
+        io.emit('onlineUsers change', onlineUsers);
 
-        io.to('_public').emit('chat message', {
+        io.emit('chat message', {
             msg      : '*<span style="color:' + color + ';"><b>' + nickname + '</b></span> joined',
             nickname : '',
             color    : 'black'
         });
 
         socket.on('chat message', function(msg) {
-            io.to('_public').emit('chat message', {
+            io.emit('chat message', {
                 msg      : msg,
                 nickname : nickname,
                 color    : color
@@ -74,9 +104,11 @@ module.exports = function(app, passport, io) {
         });
 
         socket.on('disconnect', function() {
+            console.log(nickname + ' has disconnected from the / namespace');
+
             delete onlineUsers[nickname];
-            io.to('_public').emit('onlineUsers change', onlineUsers);
-            io.to('_public').emit('chat message', {
+            io.emit('onlineUsers change', onlineUsers);
+            io.emit('chat message', {
                 msg      : '*<span style="color:' + color + ';"><b>' + nickname + '</b></span> left',
                 nickname : '',
                 color    : 'black'
@@ -84,20 +116,23 @@ module.exports = function(app, passport, io) {
         });
     });
 
-    io.of('/rooms').on('connection', function(socket) {
-        var nickname = socket.client.request.session.nickname; //could undefined
+    io.of('/roomsList').on('connection', function(socket) {
+        var nickname = socket.client.request.session.nickname;
         var color    = socket.client.request.session.color;
-        console.log(nickname + ' has connected to the /rooms namespace');
+        console.log(nickname + ' has connected to the /roomsList namespace');
 
         socket.on('roomsList change', function(message) {
             Room.find({}, function(err, roomsList) {
                 if(err)
                     return handleError(err);
                                 
-                io.of('/rooms').emit('roomsList change', roomsList);
+                io.of('/roomsList').emit('roomsList change', roomsList);
             });
         });
 
+        socket.on('disconnect', function () {
+            console.log(nickname + ' has disconnected from the /roomsList namespace');
+        });
     });
 };
 

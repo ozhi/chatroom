@@ -2,7 +2,7 @@ $(document).ready(function() {
     $('#nicknameField').focus();
 
     $('#nicknameField').keyup(function() {
-        $('#validNickname').text( isValidNickname($('#nicknameField').val()) ? '' : 'not valid' );
+        $('#validNickname').text( validNickname($('#nicknameField').val()) );
     });
 
     $('form').submit(function(event) {
@@ -25,6 +25,13 @@ $(document).ready(function() {
     });
 });
 
-function isValidNickname(s) {
-    return ( s.toLowerCase()!='system' && s.length <= 20 && (/^[a-z_][a-z0-9_]*$/gi).test(s) );
+function isValidNickname(s) { //aloows duplicate nicknames, they are stored in user sessions, not db
+    if(s.toLowerCase()!='system')
+        return 'forbidden';
+
+    if(s.length > 20)
+        return 'too long';
+    
+    if(!(/^[a-z_][a-z0-9_]*$/gi).test(s))
+        return 'no special characters';
 }

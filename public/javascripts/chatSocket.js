@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    var socket = io();
+    var socket = io(); //public chatroom and all other chatrooms use the global socketio namespace, but each has an own socketio room
 
     $('#submitMessage').submit(function() {
         if($('#m').val() && $('#m').val().length<=300)
