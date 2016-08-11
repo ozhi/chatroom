@@ -83,24 +83,28 @@ module.exports = function(app, passport, io) {
     io.sockets.on('connection', function(socket) { //global namespace
         var nickname = socket.client.request.session.nickname;
         var color    = socket.client.request.session.color;
+        var roomName;
 
-        console.log(nickname + ' has connected to the / namespace');
+        console.log(nickname + " has connected to the '/' namespace");
 
-        socket.on('room join', function(roomName) {
-            console.log(nickname + ' has joined room ' + roomName + '.');
+        socket.on('room join', function(roomNameParam) {
+            //req.session.roomName = 
+            roomName = roomNameParam;
+            socket.join(roomName);
+            console.log(nickname + " has joined '" + roomName + "'");
         });
 
         onlineUsers[nickname] = color;
-        io.emit('onlineUsers change', onlineUsers);
+        io.to(roomName).emit('onlineUsers change', onlineUsers);
 
-        io.emit('chat message', {
+        io.to(roomName).emit('chat message', {
             msg      : '*<span style="color:' + color + ';"><b>' + nickname + '</b></span> joined',
             nickname : '',
             color    : 'black'
         });
 
         socket.on('chat message', function(msg) {
-            io.emit('chat message', {
+            io.to(roomName).emit('chat message', {
                 msg      : msg,
                 nickname : nickname,
                 color    : color
@@ -111,8 +115,8 @@ module.exports = function(app, passport, io) {
             console.log(nickname + ' has disconnected from the / namespace');
 
             delete onlineUsers[nickname];
-            io.emit('onlineUsers change', onlineUsers);
-            io.emit('chat message', {
+            io.to(roomName).emit('onlineUsers change', onlineUsers);
+            io.to(roomName).emit('chat message', {
                 msg      : '*<span style="color:' + color + ';"><b>' + nickname + '</b></span> left',
                 nickname : '',
                 color    : 'black'
