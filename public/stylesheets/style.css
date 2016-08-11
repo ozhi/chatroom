@@ -7,6 +7,8 @@ a {
     color: #00B7FF;
 }
 
+.hidden { display: none; }
+
 .room {
     border: 1px solid black;
 }

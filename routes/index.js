@@ -19,6 +19,8 @@ module.exports = function(app, passport, io) {
         res.end();
     });
 
+    app.get('/destroySession',    destroySession);
+
     app.get('/rooms', ensureHasNickname, function(req, res) {       
         res.render('rooms.ejs');
     });
@@ -77,14 +79,16 @@ module.exports = function(app, passport, io) {
         });
 
     });
-
-    app.get('/destroySession',    destroySession);
     
     io.sockets.on('connection', function(socket) { //global namespace
         var nickname = socket.client.request.session.nickname;
         var color    = socket.client.request.session.color;
 
-        console.log(nickname + ' has conneted to the / namespace');
+        console.log(nickname + ' has connected to the / namespace');
+
+        socket.on('room join', function(roomName) {
+            console.log(nickname + ' has joined room ' + roomName + '.');
+        });
 
         onlineUsers[nickname] = color;
         io.emit('onlineUsers change', onlineUsers);
@@ -116,7 +120,7 @@ module.exports = function(app, passport, io) {
         });
     });
 
-    io.of('/roomsList').on('connection', function(socket) {
+    io.of('/roomsList').on('connection', function(socket) { //when connected to this namespace, socket is also connected to the global one
         var nickname = socket.client.request.session.nickname;
         var color    = socket.client.request.session.color;
         console.log(nickname + ' has connected to the /roomsList namespace');
