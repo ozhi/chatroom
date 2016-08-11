@@ -17,7 +17,7 @@ $(document).ready(function() {
             $('#roomsList tbody').append("<tr>");
             $('#roomsList tbody').append("<td> <a href='/rooms/" + roomsList[i].name + "'>" +  roomsList[i].name   + "</a></td>");
             $('#roomsList tbody').append("<td>" + roomsList[i].password   + "</td>");
-            $('#roomsList tbody').append("<td>?/" + roomsList[i].maxMembers + "</td>");
+            $('#roomsList tbody').append("<td>" + roomsList[i].curMembers + " / " + roomsList[i].maxMembers + "</td>");
             $('#roomsList tbody').append("</tr>");
         }
     });

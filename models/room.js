@@ -7,7 +7,8 @@ var roomSchema = new Schema({
         required : true,
         unique   : true },
     password   : String,
-    maxMembers : Number
+    maxMembers : Number,
+    curMembers : Number
 });
 
 var Room = mongoose.model('Room', roomSchema);
