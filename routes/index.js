@@ -1,9 +1,6 @@
 //var User = require('../models/user.js');
 var Room = require('../models/room.js');
 
-var colors = ['red', 'green', 'blue', 'brown', 'orange', 'gray' ]; //currently not used
-var onlineUsers = {};
-
 module.exports = function(app, passport, io) {
 
     app.get('/', function(req, res) {
@@ -74,73 +71,17 @@ module.exports = function(app, passport, io) {
             res.render('room.ejs', {
                 room : room
             });
-
-            //io.emit('room');
         });
-
     });
     
-    io.sockets.on('connection', function(socket) { //global namespace
+    io.sockets.on('connection', function(socket) { //the global ('/') namespace; //no msgs are emitted in this nsp
         var nickname = socket.client.request.session.nickname;
         var color    = socket.client.request.session.color;
 
-        console.log(nickname + " has connected to the '/' namespace");
+        //console.log(nickname + " connected to the '/' namespace");
 
         socket.on('disconnect', function() {
-            console.log(nickname + " has disconnected from the '/' namespace");
-        });
-    });
-
-    var chatNsp = io.of('/chat'); //the '/chat' namespace
-    chatNsp.on('connection', function(socket) {
-        var nickname = socket.client.request.session.nickname;
-        var color    = socket.client.request.session.color;
-        var roomName;
-
-        console.log(nickname + " has connected to the '/chat' namespace");
-
-        socket.on('room join', function(roomNameParam) {
-            roomName = roomNameParam;
-            onlineUsers[roomName] = {};
-            socket.join(roomName);
-            console.log(nickname + " has joined '" + roomName + "'");
-
-            chatNsp.to(roomName).emit('chat message', {
-                msg      : '*<span style="color:' + color + ';"><b>' + nickname + '</b></span> joined',
-                nickname : '',
-                color    : 'black'
-            });
-        });
-
-        if(roomName)
-            ;//onlineUsers[roomName][nickname] = color;
-        else
-            console.log("ERROR why is socket in /chat namespace without a roomName?");
-        
-        chatNsp.to(roomName).emit('onlineUsers change', onlineUsers[roomName]);
-
-        socket.on('chat message', function(msg) {
-            chatNsp.to(roomName).emit('chat message', {
-                msg      : msg,
-                nickname : nickname,
-                color    : color
-            });
-        });
-
-        socket.on('disconnect', function() {
-            console.log(nickname + ' has disconnected from the /chat namespace');
-
-            if(roomName)
-                delete onlineUsers[roomName][nickname];
-            else
-                console.log("ERROR why is socket in /chat namespace without a roomName?");
-            
-            chatNsp.to(roomName).emit('onlineUsers change', onlineUsers[roomName]);
-            chatNsp.to(roomName).emit('chat message', {
-                msg      : '*<span style="color:' + color + ';"><b>' + nickname + '</b></span> left',
-                nickname : '',
-                color    : 'black'
-            });
+            //console.log(nickname + " disconnected from the '/' namespace");
         });
     });
 
@@ -148,7 +89,7 @@ module.exports = function(app, passport, io) {
     roomsListNsp.on('connection', function(socket) {
         var nickname = socket.client.request.session.nickname;
         var color    = socket.client.request.session.color;
-        console.log(nickname + ' has connected to the /roomsList namespace');
+        console.log(nickname + ' connected to the /roomsList namespace');
 
         socket.on('roomsList change', function(message) {
             Room.find({}, function(err, roomsList) {
@@ -160,7 +101,51 @@ module.exports = function(app, passport, io) {
         });
 
         socket.on('disconnect', function () {
-            console.log(nickname + ' has disconnected from the /roomsList namespace');
+            console.log(nickname + ' disconnected from the /roomsList namespace');
+        });
+    });
+
+    var chatNsp = io.of('/chat'); //the '/chat' namespace
+    chatNsp.on('connection', function(socket) {
+        var nickname = socket.client.request.session.nickname;
+        var color    = socket.client.request.session.color;
+        var roomName;
+
+        console.log(nickname + " connected to the '/chat' namespace");
+
+        socket.on('room join', function(roomNameParam) {
+            roomName = socket.client.request.session.roomName = roomNameParam;
+
+            socket.join(roomName);
+            console.log(nickname + " joined '" + roomName + "'");
+
+            chatNsp.to(roomName).emit('chat message', {
+                msg      : '*<span style="color:' + color + ';"><b>' + nickname + '</b></span> joined',
+                nickname : '',
+                color    : 'black'
+            });
+        });
+        
+        //chatNsp.to(roomName).emit('onlineUsers change', onlineUsers[roomName]);
+
+        socket.on('chat message', function(msg) {
+            chatNsp.to(roomName).emit('chat message', {
+                msg      : msg,
+                nickname : nickname,
+                color    : color
+            });
+        });
+
+        socket.on('disconnect', function() {
+            console.log(nickname + " left " + roomName);
+            console.log(nickname + " disconnected from the '/chat' namespace");
+            
+            //chatNsp.to(roomName).emit('onlineUsers change', onlineUsers[roomName]);
+            chatNsp.to(roomName).emit('chat message', {
+                msg      : '*<span style="color:' + color + ';"><b>' + nickname + '</b></span> left',
+                nickname : '',
+                color    : 'black'
+            });
         });
     });
 };
