@@ -83,28 +83,44 @@ module.exports = function(app, passport, io) {
     io.sockets.on('connection', function(socket) { //global namespace
         var nickname = socket.client.request.session.nickname;
         var color    = socket.client.request.session.color;
-        var roomName;
 
         console.log(nickname + " has connected to the '/' namespace");
 
+        socket.on('disconnect', function() {
+            console.log(nickname + " has disconnected from the '/' namespace");
+        });
+    });
+
+    var chatNsp = io.of('/chat'); //the '/chat' namespace
+    chatNsp.on('connection', function(socket) {
+        var nickname = socket.client.request.session.nickname;
+        var color    = socket.client.request.session.color;
+        var roomName;
+
+        console.log(nickname + " has connected to the '/chat' namespace");
+
         socket.on('room join', function(roomNameParam) {
-            //req.session.roomName = 
             roomName = roomNameParam;
+            onlineUsers[roomName] = {};
             socket.join(roomName);
             console.log(nickname + " has joined '" + roomName + "'");
+
+            chatNsp.to(roomName).emit('chat message', {
+                msg      : '*<span style="color:' + color + ';"><b>' + nickname + '</b></span> joined',
+                nickname : '',
+                color    : 'black'
+            });
         });
 
-        onlineUsers[nickname] = color;
-        io.to(roomName).emit('onlineUsers change', onlineUsers);
-
-        io.to(roomName).emit('chat message', {
-            msg      : '*<span style="color:' + color + ';"><b>' + nickname + '</b></span> joined',
-            nickname : '',
-            color    : 'black'
-        });
+        if(roomName)
+            ;//onlineUsers[roomName][nickname] = color;
+        else
+            console.log("ERROR why is socket in /chat namespace without a roomName?");
+        
+        chatNsp.to(roomName).emit('onlineUsers change', onlineUsers[roomName]);
 
         socket.on('chat message', function(msg) {
-            io.to(roomName).emit('chat message', {
+            chatNsp.to(roomName).emit('chat message', {
                 msg      : msg,
                 nickname : nickname,
                 color    : color
@@ -112,11 +128,15 @@ module.exports = function(app, passport, io) {
         });
 
         socket.on('disconnect', function() {
-            console.log(nickname + ' has disconnected from the / namespace');
+            console.log(nickname + ' has disconnected from the /chat namespace');
 
-            delete onlineUsers[nickname];
-            io.to(roomName).emit('onlineUsers change', onlineUsers);
-            io.to(roomName).emit('chat message', {
+            if(roomName)
+                delete onlineUsers[roomName][nickname];
+            else
+                console.log("ERROR why is socket in /chat namespace without a roomName?");
+            
+            chatNsp.to(roomName).emit('onlineUsers change', onlineUsers[roomName]);
+            chatNsp.to(roomName).emit('chat message', {
                 msg      : '*<span style="color:' + color + ';"><b>' + nickname + '</b></span> left',
                 nickname : '',
                 color    : 'black'
@@ -124,7 +144,8 @@ module.exports = function(app, passport, io) {
         });
     });
 
-    io.of('/roomsList').on('connection', function(socket) { //when connected to this namespace, socket is also connected to the global one
+    var roomsListNsp = io.of('/roomsList'); //the '/roomsList' namespace
+    roomsListNsp.on('connection', function(socket) {
         var nickname = socket.client.request.session.nickname;
         var color    = socket.client.request.session.color;
         console.log(nickname + ' has connected to the /roomsList namespace');
@@ -134,7 +155,7 @@ module.exports = function(app, passport, io) {
                 if(err)
                     return handleError(err);
                                 
-                io.of('/roomsList').emit('roomsList change', roomsList);
+                roomsListNsp.emit('roomsList change', roomsList);
             });
         });
 

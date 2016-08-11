@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    var socket = io(); //public chatroom and all other chatrooms use the global socketio namespace, but each has an own socketio room
+    var socket = io('http://localhost:3000/chat');
 
     var roomName = $('#roomName').text();
     socket.emit('room join', roomName);
