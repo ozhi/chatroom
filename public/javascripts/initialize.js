@@ -25,7 +25,7 @@ $(document).ready(function() {
     });
 });
 
-function isValidNickname(s) { //aloows duplicate nicknames, they are stored in user sessions, not db
+function isValidNickname(s) { //alows duplicate nicknames, they are stored in user sessions, not db
     if(s.toLowerCase()!='system')
         return 'forbidden';
 

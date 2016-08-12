@@ -40,7 +40,7 @@ module.exports = function(app, passport, io) {
         });
     });
     
-    app.post('/rooms', ensureHasNickname, function(req, res) { //the problem that if you reload 'the page uses info you entered'        
+    app.post('/rooms', ensureHasNickname, function(req, res) {
         Room.find({name : req.body.newRoomNameField}, function(err, result) {
             if(err)
                 return HandleError(err);
