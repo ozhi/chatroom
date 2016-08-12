@@ -1,9 +1,0 @@
-<!-- 
-<% for(var i=0; i<rooms.length; i++) { %>
-    <tr>
-        <td> <a href='/rooms/<%= rooms[i].name %>'> <%= rooms[i].name %>      </a> </td>
-        <td>                                        <%= rooms[i].password %>       </td>
-        <td>                                        <%= rooms[i].maxMembers %>     </td>
-    </tr>
-<% } %>
--->
