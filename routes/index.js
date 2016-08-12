@@ -8,7 +8,9 @@ module.exports = function(app, passport, io) {
 
     app.get('/', function(req, res) {
         if(req.session.nickname)
-            res.render('index.ejs');
+            res.render('index.ejs', {
+                session : req.session
+            });
         else
             res.render('initialize.ejs');
     });
@@ -19,10 +21,23 @@ module.exports = function(app, passport, io) {
         res.end();
     });
 
+    app.get('/f', function(req, res) {
+        Room.find({password : ''}).remove().exec();
+        res.send('done');
+    });
+
     app.get('/destroySession', ensureHasNickname, destroySession);
 
-    app.get('/rooms', ensureHasNickname, function(req, res) {       
-        res.render('rooms.ejs');
+    app.get('/rooms', ensureHasNickname, function(req, res) {
+        Room.find({}, function(err, roomsList) {
+            if(err)
+                return handleError(err);
+
+            res.render('rooms.ejs', {
+                roomsList : roomsList,
+                session : req.session
+            }); 
+        });
     });
     
     app.post('/rooms', ensureHasNickname, function(req, res) { //the problem that if you reload 'the page uses info you entered'        
@@ -41,26 +56,19 @@ module.exports = function(app, passport, io) {
                 maxMembers : req.body.newRoomMaxMembersField,
                 curMembers : 0
             });
-
-            //console.log(req.body.newRoomMaxMembersField + "   " + parseInt(req.body.newRoomMaxMembersField));
            
             newRoom.save(function(err) {
                 if(err)
                     console.log(err);
                 
-                Room.find({}, function(err, roomsList) {
-                    if(err)
-                        return handleError(err);
-                                    
-                    roomsListNsp.emit('roomsList change', roomsList);
-                });
-                
+                roomsListNsp.emit('room created', newRoom);
+                                
                 res.redirect('/rooms/' + req.body.newRoomNameField);
              });
         });
     });
 
-    app.get('/rooms/:roomName', ensureHasNickname, function(req, res) { //check for password
+    app.get('/rooms/:roomName', ensureHasNickname, function(req, res) {
         var roomName = req.params.roomName;
         Room.findOne({name : roomName}, function(err, room) {
             if(err)
@@ -72,71 +80,25 @@ module.exports = function(app, passport, io) {
             }
 
             res.render('room.ejs', {
+                session : req.session,
                 room : room
             });
         });
     });
     
-    io.sockets.on('connection', function(socket) { //the global ('/') namespace; //no msgs are emitted in this nsp
-        var nickname = socket.client.request.session.nickname;
-        var color    = socket.client.request.session.color;
-
-        //console.log(nickname + " connected to the '/' namespace");
-
-        socket.on('disconnect', function() {
-            //console.log(nickname + " disconnected from the '/' namespace");
-        });
-    });
-
     roomsListNsp.on('connection', function(socket) {
         var nickname = socket.client.request.session.nickname;
         var color    = socket.client.request.session.color;
-        console.log(nickname + ' connected to the /roomsList namespace');
-
-        socket.on('roomsList change', function(message) {
-            Room.find({}, function(err, roomsList) {
-                if(err)
-                    return handleError(err);
-                                
-                roomsListNsp.emit('roomsList change', roomsList);
-            });
-        });
-
-        socket.on('disconnect', function () {
-            console.log(nickname + ' disconnected from the /roomsList namespace');
-        });
     });
 
     chatNsp.on('connection', function(socket) {
-        var nickname = socket.client.request.session.nickname;
-        var color    = socket.client.request.session.color;
-        var roomName;
-
-        console.log(nickname + " connected to the '/chat' namespace");
-
         socket.on('room join', function(roomNameParam) {
-            roomName = socket.client.request.session.roomName = roomNameParam;
+            var nickname = socket.client.request.session.nickname;
+            var color    = socket.client.request.session.color;
+            var roomName = socket.client.request.session.roomName = roomNameParam;
 
-            addCurMembers(roomName, 1, function() {
-                Room.find({}, function(err, roomsList) { //tell the ui sth has changed
-                    if(err)
-                        return handleError(err);
-                                    
-                    roomsListNsp.emit('roomsList change', roomsList);
-                });
-            });
-
-            socket.join(roomName);
-            console.log(nickname + " joined '" + roomName + "'");
-
-            //chatNsp.to(roomName).emit('onlineUsers change', onlineUsers[roomName]);
-
-            chatNsp.to(roomName).emit('chat message', {
-                msg      : '*<span style="color:' + color + ';"><b>' + nickname + '</b></span> joined',
-                nickname : '',
-                color    : 'black'
-            });
-
+            joinRoom(socket, roomName, nickname, color, chatNsp, roomsListNsp);
+            
             socket.on('chat message', function(msg) {
                 chatNsp.to(roomName).emit('chat message', {
                     msg      : msg,
@@ -145,26 +107,8 @@ module.exports = function(app, passport, io) {
                 });
             });
 
-            socket.on('disconnect', function() {
-                console.log(nickname + " left " + roomName);
-                console.log(nickname + " disconnected from the '/chat' namespace");
-            
-                addCurMembers(roomName, -1, function() {
-                    Room.find({}, function(err, roomsList) { //tell the ui sth has changed
-                        if(err)
-                            return handleError(err);
-                                        
-                        roomsListNsp.emit('roomsList change', roomsList);
-                    });
-                });
-                
-                //chatNsp.to(roomName).emit('onlineUsers change', onlineUsers[roomName]);
-                chatNsp.to(roomName).emit('chat message', {
-                    msg      : '*<span style="color:' + color + ';"><b>' + nickname + '</b></span> left',
-                    nickname : '',
-                    color    : 'black'
-                });
-            });
+            socket.on('room leave', function() { leaveRoom(socket, nickname, color, chatNsp, roomsListNsp); });
+            socket.on('disconnect', function() { leaveRoom(socket, nickname, color, chatNsp, roomsListNsp); }); //idempotent
         });
     });
 };
@@ -181,35 +125,69 @@ function destroySession(req, res) {
     res.redirect('/');
 }
 
-function addCurMembers(roomName, toAdd, cb) {
-    if(toAdd != 1 && toAdd != -1)
-        return; //this func is not supposed to be used like that
-    
+function joinRoom(socket, roomName, nickname, color, chatNsp, roomsListNsp) {
+    socket.join(roomName);
+
     Room.findOne({name : roomName}, function(err, room) {
         if(err)
             return handleError(err);
         
-        if(!room) {
-            console.log('ERR: room to update not found');
-            return;
-        }
+        if(!room)
+            return console.log('ERR: room to join not found');
 
-        //console.log(room);
-        if(room.curMembers + toAdd == 0) { //if the room becomes empty, delete it
-            Room.find({name : roomName}).remove(cb);
-            return;
-        }
-
-        Room.update(
-            { name : roomName         },
-            { $inc : {curMembers : toAdd} },
-            cb
-        );
+        room.curMembers ++;
+        
+        room.save(function(err) {
+            if(err)
+                return handleError(err);
+            
+            roomsListNsp.emit('room updated', room);
+        });
     });
 
-    // Room.update(
-    //     { name : roomName         },
-    //     { $inc : {curMembers : toAdd} },
-    //     function(){}
-    // );
+    chatNsp.to(roomName).emit('chat message', {
+        msg      : '*<span style="color:' + color + ';"><b>' + nickname + '</b></span> joined',
+        nickname : '',
+        color    : 'black'
+    });
+}
+
+function leaveRoom(socket, nickname, color, chatNsp, roomsListNsp) {
+    var rName = socket.client.request.session.roomName;//this variable only used locally //ask
+
+    if(!rName)
+        return;
+    
+    Room.findOne({name : rName}, function(err, room) {
+        if(err)
+            return handleError(err);
+        
+        if(!room)
+            return console.log("No room found to be left");
+
+        room.curMembers --;
+        
+        if(room.curMembers == 0)
+            room.remove(function() {
+                roomsListNsp.emit('room removed', rName);
+            });
+
+        else 
+            room.save(function(err) {
+                if(err)
+                    return handleError(err);
+                
+                roomsListNsp.emit('room updated', room);
+        
+                chatNsp.to(rName).emit('chat message', {
+                    msg      : '*<span style="color:' + color + ';"><b>' + nickname + '</b></span> left',
+                    nickname : '',
+                    color    : 'black'
+                });
+            });
+
+        socket.client.request.session.roomName = '';
+        chatNsp.emit('room leave', nickname); //tell client room has been successfully left and user can be redirected
+        socket.disconnect();
+    });
 }

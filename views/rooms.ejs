@@ -9,44 +9,68 @@
   </head>
   <body>
 
-      <form id='newRoomForm' action='/rooms' method='post'>
-          <input type='text'     name='newRoomNameField'       placeholder='Name' autocomplete='off'>    <br>
-          <input type='password' name='newRoomPasswordField'   placeholder='Password'>                   <br>
-          Max members: <input type='number'   name='newRoomMaxMembersField' value='10' min='1' max='30'> <br>
-          <input type='submit' value='New room'>
-      </form>
+        <span style='color:<%= session.color %>; font-weight:bold;'> <%= session.nickname %> </span>
+        |
+        <a href='/destroySession'>Change nickname</a>
+        |
+        <a href='/'>Home</a>
+        <br><br><br>
 
-      <script> //for submiting the form
-          $(document).ready(function() {
-              $('#newRoomForm').on('submit', function(event) {
-                  var roomName   = $("[name='newRoomNameField']").val();
-                  var maxMembers = $("[name='newRoomMaxMembersField']").val() || 10;
-                  
-                  $("[name='newRoomMaxMembersField']").val(maxMembers);
+        <form id='newRoomForm' action='/rooms' method='post'>
+                        <input type='text'     name='newRoomNameField'       placeholder='Name' autocomplete='off'> <br>
+                        <input type='password' name='newRoomPasswordField'   placeholder='Password'>                <br>
+            Max members: <input type='number'   name='newRoomMaxMembersField' value='10' min='1' max='30'>           <br>
+            <input type='submit' value='New room'>
+        </form>
 
-                  if( !isValidRoomName(roomName) ) {
-                      event.preventDefault();
-                      alert("Room name not valid.");
-                  }
-              });
-          });
+        <script> //for submiting the form
+            $(document).ready(function() {
+                $('#newRoomForm').on('submit', function(event) {
+                    var roomName   = $("[name='newRoomNameField']").val();
+                    var maxMembers = $("[name='newRoomMaxMembersField']").val() || 10;
+                    
+                    $("[name='newRoomMaxMembersField']").val(maxMembers);
 
-          function isValidRoomName(s) {
-              return ( s.length >=1 && s.length <= 20 && (/^[a-z][a-z0-9 _-]*$/gi).test(s) );
-          }
-      </script>
-      
-      <table id='roomsList'>
-          <thead>
-              <tr>
-                  <th>Name</th>
-                  <th>Password</th>
-                  <th>Members</th> 
-              </tr>
-          </thead>
-          <tbody>
-          </tbody>
-      </table>
+                    if( !isValidRoomName(roomName) ) {
+                        event.preventDefault();
+                        alert("Room name not valid.");
+                    }
+                });
+            });
+
+            function isValidRoomName(s) {
+                return ( s.length >=1 && s.length <= 20 && (/^[a-z][a-z0-9 _-]*$/gi).test(s) );
+            }
+        </script>
+
+        <table id='roomsList'>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Password</th>
+                    <th>Members</th> 
+                </tr>
+            </thead>
+            <tbody>
+
+                <% for(var i=0; i<roomsList.length; i++) { %>
+                    <tr id='<%= roomsList[i].name %>'>
+                        <!-- tr id is used for roomsList updates -->
+
+                        <td> <a href='/rooms/<%= roomsList[i].name %>'> <%= roomsList[i].name %> </a> </td>
+
+                        <% if(roomsList[i].password) { %>
+                            <td> &#9745; </td>
+                        <% } else { %>
+                            <td> &#9744; </td>
+                        <% } %>
+
+                        <td> <%= roomsList[i].curMembers %> / <%= roomsList[i].maxMembers %> </td>
+                    </tr>
+                <% } %>
+
+            </tbody>
+        </table>
 
   </body>
 </html>

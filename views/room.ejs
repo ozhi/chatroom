@@ -11,9 +11,16 @@
   <body>
 
     <h1> <%= room.name %> </h1>
-    <div class='hidden' id='roomName'><%= room.name %></div>
+    <div class='hidden' id='roomName'><%=    room.name     %></div>
+    <div class='hidden' id='nickname'><%= session.nickname %></div>
 
-    <a href='/rooms'>Leave</a>
+    <span style='color:<%= session.color %>; font-weight:bold;'> <%= session.nickname %> </span>
+    |
+    <a href='/destroySession'>Change nickname</a>
+    |
+    <a href='/'>Home</a>
+    |
+    <button id='btnLeaveRoom'>Leave</button>
 
     <br><br><br>
 

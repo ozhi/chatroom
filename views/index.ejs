@@ -9,6 +9,8 @@
 
     <h1> Welcome to Chatroom </h1>
 
+    <span style='color:<%= session.color %>; font-weight:bold;'> <%= session.nickname %> </span>
+    |
     <a href='/destroySession'>Change nickname</a>
     |
     <a href='/rooms'>Rooms</a>
@@ -16,11 +18,20 @@
     <br><br><br>
     
     <ul style='margin-top:50px;'>
-      TO DO:
+      <b>TO DO</b>:
+      <li>check if message "<nickname>" left is displayed when room is left by button/window close</li>
+      <li>what happens if you refresh the page when in some room (room is left and then has been removed when tried to be accessed again)</li>
+      <li>show which/how many users are in room/lobby/general</li>
       <li>force unique nicknames</li>
-      <li>make roomsList updates without db calls</li>
-      <li>manage which users are online in general and in each room</li>
+      <li>!!! make roomsList updates without db calls</li>
+      <br>
+
+      <b>Features</b>:
       <li>show that someone is typing</li>
+      <li>show progressbar at room members</li>
+      <br>
+
+      <b>Read</b>:
       <li>Still have <a href='https://github.com/mkdynamic/omniauth-facebook/issues/61'>issue</a> with accessing fb users' emails</li>
       <li>Finish reading <a href='http://backlinko.com/google-ranking-factors'>SEO tips</a> (around 162?)</li>
     </ul>

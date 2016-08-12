@@ -22,6 +22,15 @@ $(document).ready(function() {
         $('#chat').append("<tr> <td style='color:" + obj.color + ";'><b>" + obj.nickname + "</b> </td><td>" + obj.msg + "</td></tr>");
         $('#chatWrap').scrollTop($('#chatWrap')[0].scrollHeight);
     });
+
+    $('#btnLeaveRoom').click(function() {
+        socket.emit('room leave');
+    });
+
+    socket.on('room leave', function(nickname) {
+        if(nickname == $('#nickname').text())
+            window.location.href = "/rooms";
+    });
 });
 
 function escapeHtml(unsafe) {
