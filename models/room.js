@@ -6,9 +6,14 @@ var roomSchema = new Schema({
         type     : String,
         required : true,
         unique   : true },
-    password   : String,
-    maxMembers : Number,
-    curMembers : Number
+    password     : String,
+    maxMembers   : Number,
+    curMembers   : Number, //will maybe be removed
+    lastActivity : {
+        type    : Date,
+        expires : 60,
+        default : Date.now
+    } 
 });
 
 var Room = mongoose.model('Room', roomSchema);

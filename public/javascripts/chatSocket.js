@@ -1,6 +1,8 @@
 $(document).ready(function() {
     var socket = io('http://localhost:3000/');
 
+    $("input[id=m]").focus();
+
     var roomName = $('#roomName').text();
     socket.emit('room join', roomName);
 

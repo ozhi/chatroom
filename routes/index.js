@@ -22,8 +22,6 @@ module.exports = function(app, passport, io) {
             if(err)
                 return handleError(err);
             
-            console.log(user);
-            
             res.json({
                 msg : (user ? 'taken' : 'free')
             });
@@ -115,16 +113,57 @@ module.exports = function(app, passport, io) {
                 return;
             }
 
-            res.render('room.ejs', {
-                session : req.session,
-                room : room
-            });
+            if(room.curMembers + 1 > room.maxMembers)
+                return res.send('Room is full.');
+                        
+            if(room.password == '')
+                res.render('room.ejs', {
+                    session : req.session,
+                    room : room
+                });
+            else
+                res.render('roomPass.ejs', {
+                    session : req.session,
+                    room : room
+                });
+        });
+    });
+    
+    app.post('/rooms/:roomName', ensureHasNickname, function(req, res) {
+        var roomName = req.params.roomName;
+        var password = req.body.joinRoomPasswordField;
+
+        if(!(/^[a-z0-9_]*$/gi).test(roomName))
+            return res.json({msg : 'no special characters'});
+
+        Room.findOne({name : roomName}, function(err, room) {
+            if(err)
+                return handleError(err);
+            
+            if(!room) {
+                res.redirect('/rooms');
+                return;
+            }
+
+            if(room.curMembers+1 > room.maxMembers)
+                return res.send('Room is full.');
+            
+            if(password != room.password)
+                res.redirect('/rooms/' + roomName);
+            
+            else
+                res.render('room.ejs', {
+                    session : req.session,
+                    room : room
+                });
         });
     });
     
     io.on('connection', function(socket) {
         var nickname = socket.client.request.session.nickname;
         var color    = socket.client.request.session.color;
+
+        //console.log(Object.keys(io.sockets.connected));
         
         socket.on('room join', function(roomNameParam) {
             var roomName = socket.client.request.session.roomName = roomNameParam;

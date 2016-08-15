@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= room.name %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+  </head>
+  <body>
+
+        <span style='color:<%= session.color %>; font-weight:bold;'> <%= session.nickname %> </span>
+        |
+        <a href='/destroySession'>Change nickname</a>
+        |
+        <a href='/'>Home</a>
+        |
+        <a href='/rooms'>Rooms</a>
+        <br><br><br>
+
+        <b><%= room.name %></b> is protected.
+
+        <form id='joinRoomForm' action='/rooms/<%= room.name %>' method='POST'>
+            <input type='password' name='joinRoomPasswordField' placeholder='Password'>
+        </form>
+
+        <script>
+            $(document).ready(function() {
+                $("[name=joinRoomPasswordField]").focus();
+            });
+        </script>
+
+  </body>
+</html>

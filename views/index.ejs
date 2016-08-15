@@ -25,19 +25,27 @@
     <br><br><br>
     
     <ul style='margin-top:50px;'>
-      <b>TO DO</b>:
-      <li>force unique nicknames</li>
-      <li>should i make an ajax call to db on evey keyup to tell user if nickname is free/taken</li>
+      <b>Te do</b>:
+      <li>rooms should be deleted after 5 sec with no one in them</li>
+      <li>anonnymous users should be deleted after 5 sec of no activity (how do i track activity?)</li>
+      <li>rename input field of chat box</li>
       <li>make restrictions on how many members can join a room</li>
-      <li>show which/how many users are in room/lobby/general</li>
-      <li>bug: when you are alone in a room and refresh the page (needs too many changes to be solved)</li>
+      <li>make /rooms the homepage</li>
+      <li>add a public chat for people in the lobby</li>
+      
       <br>
-
+      <b>Bugs</b>:
+      <li>when you are alone in a room and refresh the page you end up in a functioning room which does not exist in the db</li>
+      <li>when a room is full and a member refreshes the page he gets a message that the room is full and needs a second refresh</li>
+      
+      <br>
       <b>Features</b>:
+      <li>show which/how many users are in room/lobby/general</li>
       <li>show that someone is typing</li>
       <li>show progressbar at room members</li>
-      <br>
+      <li>seen by?</li>
 
+      <br>
       <b>Read</b>:
       <li>Still have <a href='https://github.com/mkdynamic/omniauth-facebook/issues/61'>issue</a> with accessing fb users' emails</li>
       <li>Finish reading <a href='http://backlinko.com/google-ranking-factors'>SEO tips</a> (around 162?)</li>
