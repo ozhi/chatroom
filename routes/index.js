@@ -1,8 +1,9 @@
-//var User = require('../models/user.js');
+var User = require('../models/user.js');
 var Room = require('../models/room.js');
 
 module.exports = function(app, passport, io) {
 
+    var defaultNsp   = io.of('/');          //the '/'          namespace
     var roomsListNsp = io.of('/roomsList'); //the '/roomsList' namespace
     var chatNsp      = io.of('/chat');      //the '/chat'      namespace
 
@@ -16,13 +17,34 @@ module.exports = function(app, passport, io) {
     });
 
     app.post('/', function(req, res) {
-        req.session.nickname = req.body.nickname;
-        req.session.color    = req.body.color;
-        res.end();
+        var nickname = req.body.nickname;
+        var color    = req.body.color;
+
+        User.findOne({nickname : nickname}, function(err, user) {
+            if(err)
+                return handleError(err);
+            
+            if(user)
+                return res.json({nicknameIsFree : 'false'});
+
+            var newUser = new User({
+                nickname : nickname,
+                color    : color
+            });
+
+            newUser.save(function(err) {
+                if(err)
+                    return console.log(err);
+                
+                req.session.nickname = req.body.nickname;
+                req.session.color    = req.body.color;
+                res.json({nicknameIsFree : 'true'});
+            });
+        });
     });
 
     app.get('/f', function(req, res) {
-        Room.find({password : ''}).remove().exec();
+        User.find({}).remove(function() {});
         res.send('done');
     });
 
@@ -86,9 +108,19 @@ module.exports = function(app, passport, io) {
         });
     });
     
+    defaultNsp.on('connection', function(socket) {
+        socket.on('disconnect', function() {
+            deleteUser(socket.client.request.session.nickname, function() {});
+        });
+    });
+
     roomsListNsp.on('connection', function(socket) {
         var nickname = socket.client.request.session.nickname;
         var color    = socket.client.request.session.color;
+
+        socket.on('disconnect', function() {
+            deleteUser(socket.client.request.session.nickname, function() {});
+        });
     });
 
     chatNsp.on('connection', function(socket) {
@@ -107,8 +139,13 @@ module.exports = function(app, passport, io) {
                 });
             });
 
-            socket.on('room leave', function() { leaveRoom(socket, nickname, color, chatNsp, roomsListNsp); });
-            socket.on('disconnect', function() { leaveRoom(socket, nickname, color, chatNsp, roomsListNsp); }); //idempotent
+            socket.on('room leave', function() {
+                leaveRoom(socket, nickname, color, chatNsp, roomsListNsp); //idempotent
+            });
+            socket.on('disconnect', function() {
+                leaveRoom(socket, nickname, color, chatNsp, roomsListNsp);
+                deleteUser(socket.client.request.session.nickname, function() {});
+            });
         });
     });
 };
@@ -120,9 +157,15 @@ function ensureHasNickname(req, res, next) {
         res.redirect('/');
 }
 
+function deleteUser(nickname, callback) {
+    User.find({nickname : nickname}).remove(callback);
+}
+
 function destroySession(req, res) {
-    req.session.destroy();
-    res.redirect('/');
+    deleteUser(req.session.nickname, function() {
+        req.session.destroy();
+        res.redirect('/');
+    });
 }
 
 function joinRoom(socket, roomName, nickname, color, chatNsp, roomsListNsp) {

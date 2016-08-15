@@ -2,13 +2,13 @@ $(document).ready(function() {
     $('#nicknameField').focus();
 
     $('#nicknameField').keyup(function() {
-        $('#validNickname').text( validNickname($('#nicknameField').val()) );
+        $('#validateNickname').text( validateNickname($('#nicknameField').val()) );
     });
 
     $('form').submit(function(event) {
         event.preventDefault();
 
-        if(!isValidNickname($('#nicknameField').val()))
+        if(validateNickname($('#nicknameField').val()))
             return;
         
         $.ajax({
@@ -19,19 +19,28 @@ $(document).ready(function() {
                 color :    $('[name=colorField]:checked').val()
             },
             success : function(data, status, xhr) {
-                location.reload();
+                if(data.nicknameIsFree == 'false')
+                    $('#validateNickname').text( 'taken' );
+                
+                else if(data.nicknameIsFree == 'true')
+                    location.reload();
             } 
         });
     });
 });
 
-function isValidNickname(s) { //alows duplicate nicknames, they are stored in user sessions, not db
-    if(s.toLowerCase()!='system')
-        return 'forbidden';
+function validateNickname(s) {
+    if(s == '')
+        return ' ';
 
     if(s.length > 20)
         return 'too long';
     
+    if(!(/^[a-z_]$/gi).test(s[0]))
+        return 'must begin with letter or underscore';
+    
     if(!(/^[a-z_][a-z0-9_]*$/gi).test(s))
         return 'no special characters';
+    
+    return '';
 }

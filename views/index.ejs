@@ -3,6 +3,13 @@
   <head>
     <title>Chatroom</title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script>
+        $(document).ready(function() {           
+            var socket = io('http://localhost:3000/'); //connects to a namespace so that user can be deleted on disconnect
+        });
+    </script>
   </head>
 
   <body>
@@ -20,6 +27,7 @@
     <ul style='margin-top:50px;'>
       <b>TO DO</b>:
       <li>force unique nicknames</li>
+      <li>should i make an ajax call to db on evey keyup to tell user if nickname is free/taken</li>
       <li>show which/how many users are in room/lobby/general</li>
       <li>bug: when you are alone in a room and refresh the page</li>
       <br>
