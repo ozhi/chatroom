@@ -2,7 +2,32 @@ $(document).ready(function() {
     $('#nicknameField').focus();
 
     $('#nicknameField').keyup(function() {
-        $('#validateNickname').text( validateNickname($('#nicknameField').val()) );
+        var s = $('#nicknameField').val();
+        var validate = '';
+
+        if(s == '')
+            validate = ' ';
+
+        else if(s.length > 20)
+            validate = 'too long';
+        
+        else if(!(/^[a-z_]$/gi).test(s[0]))
+            validate = 'must begin with letter or underscore';
+        
+        else if(!(/^[a-z_][a-z0-9_]*$/gi).test(s))
+            validate = 'no special characters';
+        
+        else
+            $.ajax({
+                type : 'GET',
+                url  : '/isFree/' + s,
+                success : function(data, status, xhr) {
+                    if(data.msg != 'free')
+                        $('#validateNickname').text( data.msg );
+                } 
+            });
+
+        $('#validateNickname').text( validate );
     });
 
     $('form').submit(function(event) {
@@ -19,11 +44,7 @@ $(document).ready(function() {
                 color :    $('[name=colorField]:checked').val()
             },
             success : function(data, status, xhr) {
-                if(data.nicknameIsFree == 'false')
-                    $('#validateNickname').text( 'taken' );
-                
-                else if(data.nicknameIsFree == 'true')
-                    location.reload();
+                location.reload();
             } 
         });
     });
@@ -42,5 +63,11 @@ function validateNickname(s) {
     if(!(/^[a-z_][a-z0-9_]*$/gi).test(s))
         return 'no special characters';
     
-    return '';
+    $.ajax({
+        type : 'GET',
+        url  : '/isFree/' + s,
+        success : function(data, status, xhr) {
+            return data.msg;
+        } 
+    });
 }

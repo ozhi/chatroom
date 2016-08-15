@@ -3,10 +3,6 @@ var Room = require('../models/room.js');
 
 module.exports = function(app, passport, io) {
 
-    var defaultNsp   = io.of('/');          //the '/'          namespace
-    var roomsListNsp = io.of('/roomsList'); //the '/roomsList' namespace
-    var chatNsp      = io.of('/chat');      //the '/chat'      namespace
-
     app.get('/', function(req, res) {
         if(req.session.nickname)
             res.render('index.ejs', {
@@ -14,6 +10,24 @@ module.exports = function(app, passport, io) {
             });
         else
             res.render('initialize.ejs');
+    });
+
+    app.get('/isFree/:nickname', function(req, res) {
+        var nickname = req.params.nickname;
+        
+        if(!(/^[a-z_][a-z0-9_]*$/gi).test(nickname))
+            return res.json({msg : 'no special characters'});
+        
+        User.findOne({nickname : nickname}, function(err, user) {
+            if(err)
+                return handleError(err);
+            
+            console.log(user);
+            
+            res.json({
+                msg : (user ? 'taken' : 'free')
+            });
+        });
     });
 
     app.post('/', function(req, res) {
@@ -25,7 +39,7 @@ module.exports = function(app, passport, io) {
                 return handleError(err);
             
             if(user)
-                return res.json({nicknameIsFree : 'false'});
+                return res.json({nicknameIsFree : 'taken'});
 
             var newUser = new User({
                 nickname : nickname,
@@ -38,13 +52,13 @@ module.exports = function(app, passport, io) {
                 
                 req.session.nickname = req.body.nickname;
                 req.session.color    = req.body.color;
-                res.json({nicknameIsFree : 'true'});
+                res.json({nicknameIsFree : 'free'});
             });
         });
     });
 
     app.get('/f', function(req, res) {
-        User.find({}).remove(function() {});
+        Room.find({}).remove(function() {});
         res.send('done');
     });
 
@@ -83,7 +97,7 @@ module.exports = function(app, passport, io) {
                 if(err)
                     console.log(err);
                 
-                roomsListNsp.emit('room created', newRoom);
+                io.emit('room created', newRoom);
                                 
                 res.redirect('/rooms/' + req.body.newRoomNameField);
              });
@@ -108,31 +122,17 @@ module.exports = function(app, passport, io) {
         });
     });
     
-    defaultNsp.on('connection', function(socket) {
-        socket.on('disconnect', function() {
-            deleteUser(socket.client.request.session.nickname, function() {});
-        });
-    });
-
-    roomsListNsp.on('connection', function(socket) {
+    io.on('connection', function(socket) {
         var nickname = socket.client.request.session.nickname;
         var color    = socket.client.request.session.color;
-
-        socket.on('disconnect', function() {
-            deleteUser(socket.client.request.session.nickname, function() {});
-        });
-    });
-
-    chatNsp.on('connection', function(socket) {
+        
         socket.on('room join', function(roomNameParam) {
-            var nickname = socket.client.request.session.nickname;
-            var color    = socket.client.request.session.color;
             var roomName = socket.client.request.session.roomName = roomNameParam;
 
-            joinRoom(socket, roomName, nickname, color, chatNsp, roomsListNsp);
+            joinRoom(socket, roomName, nickname, color, io);
             
             socket.on('chat message', function(msg) {
-                chatNsp.to(roomName).emit('chat message', {
+                io.to(roomName).emit('chat message', {
                     msg      : msg,
                     nickname : nickname,
                     color    : color
@@ -140,12 +140,13 @@ module.exports = function(app, passport, io) {
             });
 
             socket.on('room leave', function() {
-                leaveRoom(socket, nickname, color, chatNsp, roomsListNsp); //idempotent
+                leaveRoom(socket, nickname, color, io); //idempotent
             });
-            socket.on('disconnect', function() {
-                leaveRoom(socket, nickname, color, chatNsp, roomsListNsp);
-                deleteUser(socket.client.request.session.nickname, function() {});
-            });
+        });
+
+        socket.on('disconnect', function() {
+            leaveRoom(socket, nickname, color, io);
+            deleteUser(socket.client.request.session.nickname, function() {});
         });
     });
 };
@@ -168,7 +169,7 @@ function destroySession(req, res) {
     });
 }
 
-function joinRoom(socket, roomName, nickname, color, chatNsp, roomsListNsp) {
+function joinRoom(socket, roomName, nickname, color, io) {
     socket.join(roomName);
 
     Room.findOne({name : roomName}, function(err, room) {
@@ -184,18 +185,18 @@ function joinRoom(socket, roomName, nickname, color, chatNsp, roomsListNsp) {
             if(err)
                 return handleError(err);
             
-            roomsListNsp.emit('room updated', room);
+            io.emit('room updated', room);
         });
     });
 
-    chatNsp.to(roomName).emit('chat message', {
+    io.to(roomName).emit('chat message', {
         msg      : '*<span style="color:' + color + ';"><b>' + nickname + '</b></span> joined',
         nickname : '',
         color    : 'black'
     });
 }
 
-function leaveRoom(socket, nickname, color, chatNsp, roomsListNsp) {
+function leaveRoom(socket, nickname, color, io) {
     var rName = socket.client.request.session.roomName;//this variable only used locally //ask
 
     if(!rName)
@@ -212,7 +213,7 @@ function leaveRoom(socket, nickname, color, chatNsp, roomsListNsp) {
         
         if(room.curMembers == 0)
             room.remove(function() {
-                roomsListNsp.emit('room removed', rName);
+                io.emit('room removed', rName);
             });
 
         else 
@@ -220,9 +221,9 @@ function leaveRoom(socket, nickname, color, chatNsp, roomsListNsp) {
                 if(err)
                     return handleError(err);
                 
-                roomsListNsp.emit('room updated', room);
+                io.emit('room updated', room);
         
-                chatNsp.to(rName).emit('chat message', {
+                io.to(rName).emit('chat message', {
                     msg      : '*<span style="color:' + color + ';"><b>' + nickname + '</b></span> left',
                     nickname : '',
                     color    : 'black'
@@ -230,7 +231,7 @@ function leaveRoom(socket, nickname, color, chatNsp, roomsListNsp) {
             });
 
         socket.client.request.session.roomName = '';
-        chatNsp.emit('room leave', nickname); //tell client room has been successfully left and user can be redirected
+        io.emit('room leave', nickname); //tell client room has been successfully left and user can be redirected
         socket.disconnect();
     });
 }

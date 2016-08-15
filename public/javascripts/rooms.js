@@ -1,6 +1,6 @@
 $(document).ready(function() {
     
-    var socket = io('http://localhost:3000/roomsList'); //socket namespace, not to be confused with server endpoint
+    var socket = io('http://localhost:3000/'); //socket namespace, not to be confused with server endpoint
 
     socket.on('room removed', function(roomName) {
         $("#roomsList tr[id='" + roomName + "']").remove();//because room name and id can contain spaces

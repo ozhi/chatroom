@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    var socket = io('http://localhost:3000/chat');
+    var socket = io('http://localhost:3000/');
 
     var roomName = $('#roomName').text();
     socket.emit('room join', roomName);
