@@ -1,23 +1,17 @@
 $(document).ready(function() {
     var socket = io('http://localhost:3000/');
 
-    $("input[id=m]").focus();
+    $("input[id=chatMessageField]").focus();
 
     var roomName = $('#roomName').text();
     socket.emit('room join', roomName);
 
-    $('#submitMessage').submit(function() {
-        if($('#m').val() && $('#m').val().length<=300)
-            socket.emit('chat message', escapeHtml($('#m').val()));
+    $('#chatMessageForm').submit(function() {
+        if($('#chatMessageField').val() && $('#chatMessageField').val().length<=300)
+            socket.emit('chat message', escapeHtml($('#chatMessageField').val()));
 
-        $('#m').val('');
+        $('#chatMessageField').val('');
         return false;
-    });
-
-    socket.on('onlineUsers change', function(onlineUsers) {
-        $('#onlineUsers').text('');
-        for(var u in onlineUsers)
-            $('#onlineUsers').append("<span style='color:" + onlineUsers[u] + ";'><b>" + u + "</b></span> ");
     });
 
     socket.on('chat message', function(obj) {

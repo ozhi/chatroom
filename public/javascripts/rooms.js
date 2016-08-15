@@ -13,10 +13,6 @@ $(document).ready(function() {
     socket.on('room created', function(room) {
         $('#roomsList tbody').append("<tr id='"+room.name+"'>" + toTableRow(room) + "</tr>");
     });
-    
-    socket.on('alert', function(msg) {
-        alert(msg);
-    });
 });
 
 function toTableRow(room) {
