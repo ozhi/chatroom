@@ -1,3 +1,5 @@
+'use strict';
+
 var FacebookStrategy = require('passport-facebook').Strategy;
 var User             = require('../models/user.js');
 var configAuth       = require('./auth.js');

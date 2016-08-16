@@ -1,5 +1,8 @@
+'use strict';
+
 var User = require('../models/user.js');
 var Room = require('../models/room.js');
+var randomColor = require('./util.js').randomColor;
 
 module.exports = function(app, passport, io) {
 
@@ -287,9 +290,4 @@ function leaveRoom(socket, nickname, color, io) {
         io.emit('room leave', nickname); //tell client room has been successfully left and user can be redirected
         socket.disconnect();
     });
-}
-
-function randomColor() {
-    var colors = ['red', 'blue', 'darkyellow', 'darkgreen', 'orange', 'brown', 'darkgray'];
-    return colors[Math.floor(Math.random()*colors.length)];
 }

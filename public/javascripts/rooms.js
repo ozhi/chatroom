@@ -1,3 +1,5 @@
+'use strict';
+
 $(document).ready(function() {
     
     var socket = io('http://localhost:3000/'); //socket namespace, not to be confused with server endpoint
