@@ -6,7 +6,7 @@ var randomColor = require('./util.js').randomColor;
 
 module.exports = function(app, passport, io) {
 
-    app.use('', function(req, res, next) {
+    app.use('', function(req, res, next) { //this middleware may not be a very good solution
         if(req.user)
             req.session.user = req.user;
         next();
@@ -90,17 +90,14 @@ module.exports = function(app, passport, io) {
             if(err)
                 return HandleError(err);
             
-            if(result.length) {
-                res.redirect('/rooms'); //add explanation that a room with that name already exists
-                return;
-            }
+            if(result.length)
+                return res.redirect('/rooms');
 
-            var newRoom = new Room({
-                name       : req.body.newRoomNameField,
-                password   : req.body.newRoomPasswordField,
-                maxMembers : req.body.newRoomMaxMembersField,
-                curMembers : 0
-            });
+            var newRoom = new Room();
+            newRoom.name       = req.body.newRoomNameField;
+            newRoom.password   = newRoom.generateHash(req.body.newRoomPasswordField);
+            newRoom.maxMembers = req.body.newRoomMaxMembersField;
+            newRoom.curMembers = 0;
            
             newRoom.save(function(err) {
                 if(err)
@@ -157,7 +154,7 @@ module.exports = function(app, passport, io) {
             if(room.curMembers+1 > room.maxMembers)
                 return res.send('Room is full.');
             
-            if(password != room.password)
+            if(!room.validPassword(password))
                 res.redirect('/rooms/' + roomName);
             
             else
