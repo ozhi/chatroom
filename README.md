@@ -3,9 +3,6 @@ A Node.js Chatroom app that I work on for my SAP Labs Bulgaria Internship.
 It uses Express, Passport and Socket.IO
 
 ### To do:
-* introduce facebook login
-  - facebook user is stored in req.user, while local user is stored both in req.user and req.session (Add consistency and store everything in re.user?)
-* make /rooms the homepage
 * add a public chat for people in the lobby
 
 ### Bugs:
