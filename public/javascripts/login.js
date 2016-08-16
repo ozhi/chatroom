@@ -40,8 +40,7 @@ $(document).ready(function() {
             type : 'POST',
             url  : '/',
             data : {
-                nickname : $('#nicknameField').val(),
-                color :    $('[name=colorField]:checked').val()
+                nickname : $('#nicknameField').val()
             },
             success : function(data, status, xhr) {
                 location.reload();

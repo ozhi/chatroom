@@ -4,6 +4,7 @@ It uses Express, Passport and Socket.IO
 
 ### To do:
 * introduce facebook login
+  - facebook user is stored in req.user, while local user is stored both in req.user and req.session (Add consistency and store everything in re.user?)
 * make /rooms the homepage
 * add a public chat for people in the lobby
 
@@ -13,10 +14,10 @@ It uses Express, Passport and Socket.IO
 
 ### Future features:
 * show which/how many users are in room/lobby/general
+* UI
 * show that someone is typing
 * show progressbar at room members
 * message seen by?
-* UI
 
 ### Read:
 * Still have <a href='https://github.com/mkdynamic/omniauth-facebook/issues/61'>issue</a> with accessing fb users' emails
