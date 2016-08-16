@@ -16,6 +16,7 @@ It uses Express, Passport and Socket.IO
 * show that someone is typing
 * show progressbar at room members
 * message seen by?
+* UI
 
 ### Read:
 * Still have <a href='https://github.com/mkdynamic/omniauth-facebook/issues/61'>issue</a> with accessing fb users' emails
