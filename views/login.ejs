@@ -18,22 +18,20 @@
       fjs.parentNode.insertBefore(js, fjs);
     }(document, 'script', 'facebook-jssdk'));</script>
 
-    <div id='loginOptionsBox'>
-        <h1 class='center'><center>How others will see you:</center></h1>
+    <center>
+      <div id='loginOptionsBox'>
+          <h1 class='center'>Choose how others will see you:</h1>
 
-        <form id='loginForm' class='floatLeft'>
-            <h1>Local nickname</h1>
-            <input type='text' id='nicknameField'  placeholder='Nickname' autocomplete='off' />
-            <span id='validateNickname' style='color:red;'></span>
-        </form>
+          <form id='loginForm' class='floatLeft'>
+              <input type='text' id='nicknameField'  placeholder='Nickname' autocomplete='off' />
+              <span id='validateNickname' style='color:red;'></span>
+          </form>
 
-        <h1 class='floatLeft'>or</h1>
+          <h1 class='floatLeft'>or</h1>
 
-        <div class="fb-login-button floatLeft" data-max-rows="1" data-size="large" data-show-faces="true" data-auto-logout-link="true"></div>
-
-        <a href='/auth/facebook' class="floatLeft">Continue with Facebook</a>
-
-    </div>
+          <a href='/auth/facebook' class="floatLeft">Continue with Facebook</a>
+      </div>
+    </center>
 
   </body>
 </html>

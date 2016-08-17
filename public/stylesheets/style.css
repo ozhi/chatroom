@@ -1,6 +1,7 @@
 body {
     padding: 50px;
     font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+    background-color : GhostWhite;
 }
 
 a {
@@ -10,8 +11,8 @@ a {
 .inline { display : inline; }
 .hidden { display : none; }
 .floatLeft {
-    float : left;
-    margin : 20px;
+    display : inline;
+    margin  : 20px;
  }
 .border { border : 1px solid black; }
 
@@ -27,8 +28,9 @@ a {
 
 
 #loginOptionsBox {
-    border : 1px solid black;
-    margin : auto;
+    display: inline-block;
+    margin-left : auto;
+    margin-right : auto;
 }
 
 

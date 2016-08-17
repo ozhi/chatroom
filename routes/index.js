@@ -94,10 +94,13 @@ module.exports = function(app, passport, io) {
                 return res.redirect('/rooms');
 
             var newRoom = new Room();
-            newRoom.name       = req.body.newRoomNameField;
-            newRoom.password   = newRoom.generateHash(req.body.newRoomPasswordField);
-            newRoom.maxMembers = req.body.newRoomMaxMembersField;
-            newRoom.curMembers = 0;
+            newRoom.name         = req.body.newRoomNameField;
+
+            if(req.body.newRoomPasswordField)
+                newRoom.password = newRoom.generateHash(req.body.newRoomPasswordField); //or else leave it undefined
+
+            newRoom.maxMembers   = req.body.newRoomMaxMembersField;
+            newRoom.curMembers   = 0;
            
             newRoom.save(function(err) {
                 if(err)
@@ -122,7 +125,7 @@ module.exports = function(app, passport, io) {
             if(room.curMembers + 1 > room.maxMembers)
                 return res.send('Room is full.');
                         
-            if(room.password == '')
+            if(!room.password) //undefined or empty string
                 res.render('room.ejs', {
                     user : req.session.user,
                     room : room
