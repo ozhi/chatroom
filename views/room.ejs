@@ -18,14 +18,16 @@
     |
     <a href='/logout'>Logout</a>
     |
-    <a href='/'>Home</a>
-    |
     <a href='' id='btnLeaveRoom'>Leave</a>
 
     <br><br><br>
 
     <div class='room'>
-        (<div id='onlineUsers'> </div>)
+        <div id='membersBox'>
+            <% for(var m in room.members) { %>
+                <span id='<%= m %>' class='nickname' style='color:<%= room.members[m] %>;'> <%= m %> </span>
+            <% } %>
+        </div>
       
         <div id='chatWrap'>
             <table id='chat'>

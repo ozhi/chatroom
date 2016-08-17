@@ -21,10 +21,17 @@ a {
     border: 1px solid black;
 }
 
-.room input {
-    width: 100%;
+.room input { width: 100%; }
+
+.nickname {  font-weight : bold; padding:5px;}
+.nickname:hover {
+    border : 1px solid black;
 }
 
+#membersBox {
+    display : inline-block;
+    margin : 20px;
+}
 
 
 #loginOptionsBox {

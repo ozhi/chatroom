@@ -13,11 +13,9 @@
         <a href='/logout'>Logout</a>
         |
         <a href='/'>Home</a>
-        |
-        <a href='/rooms'>Rooms</a>
         <br><br><br>
 
-        <b><%= room.name %></b> is protected.
+        <h1><%= room.name %></h1>
 
         <form id='joinRoomForm' action='/rooms/<%= room.name %>' method='POST'>
             <input type='password' name='joinRoomPasswordField' placeholder='Password'>

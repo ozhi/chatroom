@@ -73,7 +73,7 @@ module.exports = function(app, passport, io) {
 
     app.get('/f', function(req, res) {
         Room.find({}).remove(function() {});
-        res.send('done');
+        res.redirect('/');
     });
 
     app.get('/logout', ensureLoggedIn, logout);
@@ -85,7 +85,7 @@ module.exports = function(app, passport, io) {
     });
 
 
-    app.post('/rooms', ensureLoggedIn, function(req, res) {
+    app.post('/rooms', ensureLoggedIn, function(req, res) { //create a new room
         Room.find({name : req.body.newRoomNameField}, function(err, result) {
             if(err)
                 return HandleError(err);
@@ -127,8 +127,8 @@ module.exports = function(app, passport, io) {
                         
             if(!room.password) //undefined or empty string
                 res.render('room.ejs', {
-                    user : req.session.user,
-                    room : room
+                    user        : req.session.user,
+                    room        : room
                 });
             else
                 res.render('roomPass.ejs', {
@@ -162,8 +162,8 @@ module.exports = function(app, passport, io) {
             
             else
                 res.render('room.ejs', {
-                    user : req.session.user,
-                    room : room
+                    user        : req.session.user,
+                    room        : room
                 });
         });
     });
@@ -173,8 +173,6 @@ module.exports = function(app, passport, io) {
     io.on('connection', function(socket) {
         var nickname = socket.client.request.session.user.nickname;
         var color    = socket.client.request.session.user.color;
-
-        //console.log(Object.keys(io.sockets.connected));
         
         socket.on('room join', function(roomNameParam) {
             var roomName = socket.client.request.session.roomName = roomNameParam;
@@ -232,10 +230,14 @@ function joinRoom(socket, roomName, nickname, color, io) {
         if(err)
             return handleError(err);
         
-        if(!room)
+        if(!room) { //if user is alone in a room and refreshes, it is destroyed and they are sent to /rooms
+            io.to(roomName).emit('room leave', nickname);
             return console.log('ERR: room to join not found');
+        }
 
         room.curMembers ++;
+        room.members[nickname] = color;
+        room.markModified('members'); //mongoose doesnt detet the change in Object types, so this should be done manually
         
         room.save(function(err) {
             if(err)
@@ -243,6 +245,11 @@ function joinRoom(socket, roomName, nickname, color, io) {
             
             io.emit('room updated', room);
         });
+    });
+
+    io.to(roomName).emit('add member', {
+        nickname : nickname,
+        color : color
     });
 
     io.to(roomName).emit('chat message', {
@@ -253,7 +260,7 @@ function joinRoom(socket, roomName, nickname, color, io) {
 }
 
 function leaveRoom(socket, nickname, color, io) {
-    var rName = socket.client.request.session.roomName;//this variable only used locally //ask
+    var rName = socket.client.request.session.roomName; //this variable only used locally //ask
 
     if(!rName)
         return;
@@ -266,6 +273,8 @@ function leaveRoom(socket, nickname, color, io) {
             return console.log("No room found to be left");
 
         room.curMembers --;
+        delete room.members[nickname];
+        room.markModified('members');
         
         if(room.curMembers == 0)
             room.remove(function() {
@@ -285,6 +294,8 @@ function leaveRoom(socket, nickname, color, io) {
                     color    : 'black'
                 });
             });
+        
+        io.to(rName).emit('remove member', nickname);
 
         socket.client.request.session.roomName = '';
         io.emit('room leave', nickname); //tell client room has been successfully left and user can be redirected

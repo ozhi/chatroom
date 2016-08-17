@@ -12,6 +12,10 @@ var roomSchema = new Schema({
     password     : String,
     maxMembers   : Number,
     curMembers   : Number, //will maybe be removed
+    members      : {
+        type    : Object,
+        default : {}
+    }
 });
 
 roomSchema.methods.generateHash = function(password) {
