@@ -1,13 +1,14 @@
 # Chatroom
-A **Chatroom** app that I work on for my SAP Labs Bulgaria internship.
-It uses Node.js, MongoDB and Passport server-side,
-JavaScript, HTML & some CSS client-side and
-Socket.io for real-time Web socket communication.
+I am working on this app for my internship at SAP Labs Bulgaria.
+Technologies used:
+* Serverside - Node.js + MongoDB and Passport for authentication
+* Clientside - Not a priority of the app, Javascript, HTML and a little CSS
+* Socket.io  - Web sockets provide fast real-time communication between the server and client.
 
 ###Description
-After you log in with your facebok account of local nickname,
-you can create a chatroom or join an exisitng one for instant messenging.
-Rooms have a members limit and optional password protection.
+After you log in with your facebook account of local nickname,
+you can join a room and chat with the others, or create your own room and send a link to your friends.
+You can also set up a password-protected room.
 
 ### To do:
 * move color generation to the server
