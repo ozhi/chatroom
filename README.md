@@ -11,11 +11,13 @@ you can join a room and chat with the others, or create your own room and send a
 You can also set up a password-protected room.
 
 ### To do:
+* move db connection info to /lib/config
 * move color generation to the server
 * remember which page is requested without authentication so that user can be redirected after login
 * (bad practice?) currently using middleware to attach the req.user object, which Passport creates, to req.session, which the local logic uses.
 * separate router functions in files for better readability
 * add exclusive features to fb users
+* make tests
 
 ### Bugs:
 * when you are alone in a room and refresh the page you end up in a functioning room which does not exist in the db
