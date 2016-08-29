@@ -3,18 +3,13 @@ body {
     font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
     background-color : GhostWhite;
 }
+a { color: #00B7FF; }
 
-a {
-    color: #00B7FF;
-}
+.border { border : 3px solid green; }
+.inline { display: inline; }
+.center { margin-left: auto; margin-right: auto; text-align: center; }
 
-.inline { display : inline; }
-.hidden { display : none; }
-.floatLeft {
-    display : inline;
-    margin  : 20px;
- }
-.border { border : 1px solid black; }
+
 
 
 .room {
@@ -30,16 +25,9 @@ a {
 
 #membersBox {
     display : inline-block;
-    margin : 20px;
+    margin-top    : 20px;
+    margin-bottom : 20px;
 }
-
-
-#loginOptionsBox {
-    display: inline-block;
-    margin-left : auto;
-    margin-right : auto;
-}
-
 
 
 
