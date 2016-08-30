@@ -7,10 +7,9 @@ a { color: #00B7FF; }
 
 .border { border : 3px solid green; }
 .inline { display: inline; }
-.center { margin-left: auto; margin-right: auto; text-align: center; }
+.center { margin-left: auto; margin-right: auto; }
 
-
-
+.m10 { margin: 10px; }
 
 #roomsContainer {
     max-width: 400px;
