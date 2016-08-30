@@ -51,6 +51,8 @@ require('./lib/routes/index.js')(app, passport, sio);
 
 server.listen(3000);
 
+clearUsersAndRoomsFromDb();
+
 // development error handler, will print stacktrace
 app.use(function (err, req, res, next) {
     res.status(err.status || 500);
@@ -59,3 +61,10 @@ app.use(function (err, req, res, next) {
         error: err
     });
 });
+
+function clearUsersAndRoomsFromDb() {
+    var User = require('./lib/models/user.js');
+    var Room = require('./lib/models/room.js');
+    User.find({}).remove(function() {});
+    Room.find({}).remove(function() { /*console.log('All rooms removed from db');*/ });
+}

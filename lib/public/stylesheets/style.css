@@ -12,6 +12,11 @@ a { color: #00B7FF; }
 
 
 
+#roomsContainer {
+    max-width: 400px;
+}
+
+
 .room {
     border: 1px solid black;
 }
@@ -49,12 +54,4 @@ a { color: #00B7FF; }
 
 #newRoomForm {
     margin-bottom: 30px;
-}
-
-#roomsList {
-    border: 1px solid black;
-}
-
-#roomsList tr:nth-child(even) {
-    background: #eee;
 }
