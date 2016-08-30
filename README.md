@@ -12,6 +12,7 @@ You can also set up a password-protected room.
 
 ### To do:
 * move db connection info to /lib/config
+* move transformation of room to table row in one place only (now it is separate for initial /rooms load and after room create/update) 
 * remember which page is requested without authentication so that user can be redirected after login
 * (bad practice?) currently using middleware to attach the req.user object, which Passport creates, to req.session, which the local logic uses.
 * separate router functions in files for better readability
@@ -19,6 +20,7 @@ You can also set up a password-protected room.
 * make tests
 
 ### Bugs:
+* if you create a privta room but then press back when asked for password, it is left existing empty
 * when you are alone in a room and refresh the page you end up in a functioning room which does not exist in the db
 ...solved by sending 'room leave' msg from server
 * when a room is full and a member refreshes the page they get a message that the room is full
