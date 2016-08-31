@@ -2,7 +2,7 @@
 I am working on this app for my internship at SAP Labs Bulgaria.
 Technologies used:
 * Serverside - Node.js + MongoDB, PassportJs for authentication
-* Clientside - some Javascript + some Bootstrap CSS
+* Clientside - Javascript & Bootstrap CSS
 * Socket.io  - Web sockets provide fast real-time communication between the server and client.
 
 ###Description
@@ -21,7 +21,7 @@ You can also set up a password-protected room.
 
 ### Unsolved bugs:
 * when a room is full and a member refreshes the page they get a message that the room is full
-... second refresh solves it
+(second refresh solves it)
 
 ### Future features (?):
 * Public chat for people in the lobby

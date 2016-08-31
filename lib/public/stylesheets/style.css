@@ -12,12 +12,10 @@ a { color: #00B7FF; }
 
 .m10 { margin: 10px; }
 .m-b { margin-bottom: 100px; }
+.p0 { padding: 0px; }
 
 .container {
     max-width: 400px;
-}
-
-#roomsContainer {
 }
 
 .room input { width: 100%; }
