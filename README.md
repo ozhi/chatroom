@@ -17,23 +17,19 @@ You can also set up a password-protected room.
 * remember which page is requested without authentication so that user can be redirected after login
 * (bad practice?) currently using middleware to attach the req.user object, which Passport creates, to req.session, which the local logic uses.
 * separate router functions in files for better readability
-* add exclusive features to fb users (not happening?)
 * make tests
 
-### Bugs:
-* when you are alone in a room and refresh the page you end up in a functioning room which does not exist in the db
-...solved by sending 'room leave' msg from server
+### Unsolved bugs:
 * when a room is full and a member refreshes the page they get a message that the room is full
-...second refresh solves it
+... second refresh solves it
 
 ### Future features (?):
-* public chat for people in the lobby
-* show which/how many users are in room/lobby/general
-* UI
-* show that someone is typing
-* message seen by
-* emoticons
-* show progressbar at room members
+* Public chat for people in the lobby
+* Show which/how many users are in the lobby/each room
+* Show when someone is typing
+* Message is seen by
+* Emoticons
+* Exclusive features to Facebook users
 
 ### To read:
 * <a href='https://github.com/mkdynamic/omniauth-facebook/issues/61'>Issue</a> with accessing fb users' emails
