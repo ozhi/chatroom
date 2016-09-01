@@ -1,4 +1,3 @@
-TEST UPDATE FROM OZHI
 # Chatroom
 I am working on this app for my internship at SAP Labs Bulgaria.
 Technologies used:
