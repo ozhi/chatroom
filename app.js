@@ -49,7 +49,9 @@ app.use(flash()); // use connect-flash for flash messages stored in session
 
 require('./lib/routes/index.js')(app, passport, sio);
 
-server.listen( (process.env.OPENSHIFT_NODEJS_PORT || 3000), (process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1'));
+server.listen(process.env.NODE_PORT || 3000, process.env.NODE_IP || 'localhost', function () {
+  console.log("Go, go, gadget chatroom");
+});
 
 clearUsersAndRoomsFromDb();
 
