@@ -49,7 +49,7 @@ app.use(flash()); // use connect-flash for flash messages stored in session
 
 require('./lib/routes/index.js')(app, passport, sio);
 
-server.listen(3000);
+server.listen(process.env.PORT || 3000);
 
 clearUsersAndRoomsFromDb();
 
