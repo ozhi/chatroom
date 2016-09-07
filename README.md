@@ -1,9 +1,12 @@
 # Chatroom
-I am working on this app for my internship at SAP Labs Bulgaria.
+[Chatroom](http://chatroom-ozhi.rhcloud.com "The working online version")
+I created this app while learning Node during my nternship @ SAP Labs Bulgaria.
+
+
 Technologies used:
-* Serverside - Node.js + MongoDB, PassportJs for authentication
-* Clientside - Javascript & Bootstrap CSS
-* Socket.io  - Web sockets provide fast real-time communication between the server and client.
+* Serverside - `Node.js` + `MongoDB`, `PassportJs` for authentication
+* Clientside - `Javascript` & `Bootstrap CSS`
+* Web sockets - `Socket.io` provides fast real-time communication between the server and client.
 
 ###Description
 After you log in with your facebook account of local nickname,
