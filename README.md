@@ -1,6 +1,7 @@
 # Chatroom
 [Chatroom](http://chatroom-ozhi.rhcloud.com "The working online version")
-I created this app while learning Node during my nternship @ SAP Labs Bulgaria.
+
+I created this app to learn Node during my internship @ SAP Labs Bulgaria.
 
 
 Technologies used:
@@ -37,4 +38,3 @@ You can also set up a password-protected room.
 
 ### To read:
 * <a href='https://github.com/mkdynamic/omniauth-facebook/issues/61'>Issue</a> with accessing fb users' emails
-* Finish reading <a href='http://backlinko.com/google-ranking-factors'>SEO tips</a> (up to 162?)

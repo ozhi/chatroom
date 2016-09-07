@@ -26,7 +26,7 @@ var server = require('http').Server(app);
 var sio = require('socket.io')(server);
 
 var sessionMiddleware = session({
-    secret: 'ProvideSomeSecret',
+    secret: 'secret',
     store: sessionStore
 });
 
@@ -40,7 +40,6 @@ app.use(sessionMiddleware);
 app.set('views', path.join(__dirname, 'lib/views'));
 app.set('view engine', 'ejs');
 
-// app.use(require('morgan')('dev'));//logs requests to the console
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'lib/public')));
