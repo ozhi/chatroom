@@ -27,6 +27,7 @@ You can also set up a password-protected room.
 * Public chat for people in the lobby
 * Show which/how many users are in the lobby/each room
 * Show when someone is typing
+* Timestamp of when each msg is sent
 * Message is seen by
 * Emoticons
 * Exclusive features to Facebook users

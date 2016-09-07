@@ -4,7 +4,12 @@ var express = require('express');
 var session = require('express-session');
 
 var mongoose = require('mongoose');
-var db = mongoose.connect('mongodb://localhost/chatroom');
+var db;
+if(process.env.OPENSHIFT_MONGODB_DB_URL)
+    db = mongoose.connect(process.env.OPENSHIFT_MONGODB_DB_URL + 'chatroom');
+else
+    db = mongoose.connect('mongodb://localhost/chatroom');
+
 var mongoStore = require('connect-mongo')(session);
 var sessionStore = new mongoStore({ mongooseConnection: mongoose.connection });
 
@@ -12,7 +17,6 @@ var path = require('path');
 var bodyParser = require('body-parser');
 var passport = require('passport');
 var flash = require('connect-flash');
-//var passportSocketIo = require('passport.socketio');
 var cookieParser = require('cookie-parser');
 var debug = require('debug')('chatroom:server');
 
@@ -22,7 +26,7 @@ var server = require('http').Server(app);
 var sio = require('socket.io')(server);
 
 var sessionMiddleware = session({
-    secret: 'secret',
+    secret: 'ProvideSomeSecret',
     store: sessionStore
 });
 
@@ -36,7 +40,7 @@ app.use(sessionMiddleware);
 app.set('views', path.join(__dirname, 'lib/views'));
 app.set('view engine', 'ejs');
 
-app.use(require('morgan')('dev'));//logs requests to the console
+// app.use(require('morgan')('dev'));//logs requests to the console
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'lib/public')));
@@ -50,7 +54,7 @@ app.use(flash()); // use connect-flash for flash messages stored in session
 require('./lib/routes/index.js')(app, passport, sio);
 
 server.listen(process.env.NODE_PORT || 3000, process.env.NODE_IP || 'localhost', function () {
-  console.log("Go, go, gadget chatroom");
+  console.log( (process.env.NODE_PORT || 3000) + " " + (process.env.NODE_IP || 'localhost') );
 });
 
 clearUsersAndRoomsFromDb();

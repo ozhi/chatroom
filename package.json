@@ -1,11 +1,28 @@
 {
   "name": "chatroom",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "start": "node app.js",
-    "test": "./node_modules/.bin/mocha test --recursive"
+  "version": "1.0.0",
+  "description": "A chatroom web app on Node.js",
+  "keywords" : ["chatroom", "chat", "socket", "sockets", "message", "messages", "communicate"],
+  "homepage" : "http://chatroom-ozhi.rhcloud.com/",
+  "bugs": {
+    "url" : "https://github.com/ozhi/chatroom/issues",
+    "email" : "bozhin@gmail.com"
   },
+  "author": {
+    "name" : "Bozhin Katsarski",
+    "email" : "bozhin@gmail.com",
+    "url" : "http://ozhi.tk"
+  },
+  "private": true,
+  "main": "app.js",
+  "scripts": {
+    "start": "node --use_strict app.js"
+  },
+  "repository" : {
+    "type" : "git",
+    "url" : "https://github.com/ozhi/chatroom.git"
+  },
+  "license": "UNLICENSED",
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
     "body-parser": "~1.15.1",
