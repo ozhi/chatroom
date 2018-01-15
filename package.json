@@ -10,8 +10,7 @@
   },
   "author": {
     "name" : "Bozhin Katsarski",
-    "email" : "bozhin@gmail.com",
-    "url" : "http://ozhi.tk"
+    "email" : "bozhin@gmail.com"
   },
   "private": true,
   "main": "app.js",
